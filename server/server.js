@@ -10,6 +10,7 @@ var {Users} = require('./models/user');
 
 
 var app = express();
+const port = process.env.PORT || 3000;
 
 //attaches middleware
 app.use(bodyParser.json());
@@ -65,8 +66,8 @@ app.get('/todos/:id',(req, res) => {
     //b) error => 400 and send empty body back
 });
 
-app.listen(3000, () => {
-    console.log('started on port 3000');
+app.listen(port, () => {
+    console.log(`started on port ${port}`);
 })
 
 
