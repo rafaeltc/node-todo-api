@@ -9,7 +9,7 @@ const {ObjectID} = require('mongodb');
 //local imports
 var {mongoose} = require('./db/mongoose');
 var {Todo} = require('./models/todo');
-var {Users} = require('./models/user');
+var {User} = require('./models/user');
 
 
 var app = express();
@@ -27,8 +27,6 @@ app.post('/todos', (req,res) => {
         (doc) => {res.send(doc)},
         (err) => {res.status(400).send(err)}
     );
-
-    //console.log(req.body);
 });
 
 app.get('/todos/', (req, res) => {
@@ -58,15 +56,6 @@ app.get('/todos/:id',(req, res) => {
             console.log(e);
             res.status(400).send();
     });
-
-    //validate id using isValid => 
-    //404 --> send back empty send
-
-    //query db
-    //find by id
-    //a) success  => send it back
-        // no todo => send back 404 with empty body
-    //b) error => 400 and send empty body back
 });
 
 app.delete('/todos/:id',(req,res) => {
@@ -125,6 +114,23 @@ app.patch('/todos/:id', (req,res) => {
     }).catch((err) => {
         res.status(400).send();
     });
+});
+
+app.post('/users', (req,res) => {
+
+    var body = _.pick(req.body, ['email','password']);
+    var {email,password} = req.body;
+
+    var user = new User({email,password});
+
+    user.save().then(() => {
+        return user.generateAuthToken();
+      }).then((token) => {
+        res.header('x-auth', token).send(user);
+      }).catch((e) => {
+        res.status(400).send(e);
+      });
+    
 });
 
 app.listen(port, () => {
