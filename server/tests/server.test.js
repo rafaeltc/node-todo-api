@@ -4,30 +4,16 @@ const {ObjectID} = require('mongodb');
 
 const {app} = require('./../server');
 const {Todo} = require('./../models/todo');
+const {todos, populateTodos, users, populateUsers} = require('./seed/seed')
 
-const todos = [
-    {
-        _id: new ObjectID(), 
-        text: 'Todo #1'
-    },
-    {
-        _id: new ObjectID(), 
-        text: 'Todo #2',
-        completed: true
-    }
-];
-
-beforeEach((done) => {
-    Todo.remove({}).then(() => {
-        return Todo.insertMany(todos);
-    }).then(() => done());
-})
+beforeEach(populateUsers);
+beforeEach(populateTodos);
 
 describe('POST /todos', () => {
 
     it('should create a new todo', (done) => {
         var text = 'Test todo text';
-
+        this.timeout = 9999;
         request(app)
         .post('/todos')
         .send({text})
@@ -46,7 +32,7 @@ describe('POST /todos', () => {
                 expect(todos[0].text).toBe(text);
                 done();
             })
-            .catch((w) => done(e));
+            .catch((e) => done(e));
 
         });
     });
@@ -163,7 +149,6 @@ describe('PATCH /todos/:id', () => {
         })
         .expect(200)
         .expect((res) => {
-            console.log(res);
             expect(res.body.todo.text).toBe(text);
             expect(res.body.todo.completed).toBeTruthy();
             expect(typeof res.body.todo.completedAt).toBe('number');
@@ -184,7 +169,6 @@ describe('PATCH /todos/:id', () => {
         })
         .expect(200)
         .expect((res) => {
-            console.log(res);
             expect(res.body.todo.text).toBe(text);
             expect(res.body.todo.completed).toBeFalsy;
             expect(res.body.todo.completedAt).toBeNull();

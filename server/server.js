@@ -54,8 +54,8 @@ app.get('/todos/:id',(req, res) => {
         console.log(JSON.stringify(todo, undefined, 2));
         res.status(200).send({todo});
     }).catch((e) => {
-            console.log(e);
-            res.status(400).send();
+        console.log(e.message);
+        res.status(400).send();
     });
 });
 
@@ -66,7 +66,7 @@ app.delete('/todos/:id',(req,res) => {
     //validate the id -> not valid return 404
     if(!ObjectID.isValid(id)) {
         console.log('ID \'',id,'\' is not valid!');
-        res.send(404);
+        res.sendStatus(404);
     }
 
     //remove by id
@@ -82,7 +82,7 @@ app.delete('/todos/:id',(req,res) => {
         }
         res.status(404).send();
     }).catch((err) => {
-        console.log(err);
+        console.log(err.message);
         res.status(400).send();
     });
 
