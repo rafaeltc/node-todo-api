@@ -44,8 +44,6 @@ UserSchema.methods.generateAuthToken = function() {
     var user = this;
     var access = 'auth';
     var token = jwt.sign({_id: user._id.toHexString(), access},'abc123').toString();
-    console.log('this: ',this);
-    console.log('token: ', token);
 
     // user.tokens.push({access, token});
     user.tokens = user.tokens.concat([{access, token}]);
@@ -61,9 +59,7 @@ UserSchema.statics.findByToken = function(token) {
 
     try {
         decoded = jwt.verify(token, 'abc123');
-        console.log('successfully verified token ', decoded);
     } catch(e) {
-        console.log('failed to verify token ', token);
         // return new Promise((resolve, reject) => {
         //     reject();
         // });
@@ -76,6 +72,28 @@ UserSchema.statics.findByToken = function(token) {
         'tokens.access': 'auth'
     });
 };
+
+UserSchema.statics.findByCredentials = function(email, password) {
+    var User = this;
+
+    return User.findOne({email}).then(user => {
+        if(!user) {
+            return Promise.reject();
+        }
+
+        //bcrypt does not support promises (only callbacks) therefore..
+        return new Promise((resolve, reject) => {
+            bcrypt.compare(password, user.password, (err, res) => {
+                if(res) {
+                    resolve(user);
+                }
+                else {
+                    reject();
+                }
+            })
+        });
+    });
+}
 
 UserSchema.pre('save', function(next) {
     var user = this;
