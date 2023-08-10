@@ -4,6 +4,6 @@
     "config:base",
     "config:best-practices",
     ":labels(renovate)",
-    ":automergeMinor"
+    ":automergeAll"
   ]
 }
